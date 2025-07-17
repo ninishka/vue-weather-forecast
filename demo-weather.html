@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Animation Demo</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            overflow-x: hidden;
+            background-color: #1a1a2e;
+            color: #ffffff;
+        }
+        
+        .demo-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            position: relative;
+        }
+        
+        .weather-section {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .weather-info {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 2rem;
+            border-radius: 1rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        .controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            color: white;
+        }
+        
+        .controls button {
+            margin: 0.25rem;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.25rem;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+        }
+        
+        .controls button:hover {
+            background: #5a6fd8;
+        }
+        
+        .weather-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        .weather-sunny {
+            background: linear-gradient(135deg, rgba(135, 206, 235, 0.3) 0%, rgba(152, 216, 232, 0.3) 50%, rgba(176, 224, 230, 0.3) 100%);
+        }
+        
+        .sun {
+            position: absolute;
+            top: 10%;
+            right: 10%;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, #FFD700 0%, #FFA500 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 50px #FFD700;
+            animation: sunPulse 3s ease-in-out infinite;
+        }
+        
+        @keyframes sunPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 50px #FFD700; }
+            50% { transform: scale(1.1); box-shadow: 0 0 80px #FFD700; }
+        }
+        
+        .cloud {
+            position: absolute;
+            background: white;
+            opacity: 0.9;
+            animation: float 6s ease-in-out infinite;
+            filter: blur(0.5px);
+        }
+        
+        .cloud::before,
+        .cloud::after {
+            content: '';
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+        }
+        
+        .cloud1 { 
+            width: 120px; height: 60px; top: 20%; left: 10%; animation-delay: 0s; border-radius: 60px;
+        }
+        .cloud1::before { width: 50px; height: 50px; top: -25px; left: 15px; }
+        .cloud1::after { width: 40px; height: 40px; top: -20px; right: 20px; }
+        
+        .cloud2 { 
+            width: 90px; height: 45px; top: 30%; right: 20%; animation-delay: 2s; border-radius: 45px;
+        }
+        .cloud2::before { width: 35px; height: 35px; top: -17px; left: 10px; }
+        .cloud2::after { width: 30px; height: 30px; top: -15px; right: 15px; }
+        
+        .cloud3 { 
+            width: 140px; height: 70px; top: 15%; left: 50%; animation-delay: 4s; border-radius: 70px;
+        }
+        .cloud3::before { width: 60px; height: 60px; top: -30px; left: 20px; }
+        .cloud3::after { width: 50px; height: 50px; top: -25px; right: 25px; }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .weather-rainy {
+            background: linear-gradient(135deg, rgba(44, 62, 80, 0.4) 0%, rgba(52, 73, 94, 0.4) 50%, rgba(93, 109, 126, 0.4) 100%);
+        }
+        
+        .rain-cloud1, .rain-cloud2, .rain-cloud3 {
+            background: #34495E;
+            box-shadow: 0 0 20px rgba(52, 73, 94, 0.5);
+            filter: blur(0.5px);
+        }
+        
+        .rain-cloud1 { 
+            width: 160px; height: 80px; top: 10%; left: 5%; border-radius: 80px;
+        }
+        .rain-cloud1::before { width: 70px; height: 70px; top: -35px; left: 20px; background: #34495E; }
+        .rain-cloud1::after { width: 60px; height: 60px; top: -30px; right: 25px; background: #34495E; }
+        
+        .rain-cloud2 { 
+            width: 140px; height: 70px; top: 15%; right: 10%; border-radius: 70px;
+        }
+        .rain-cloud2::before { width: 60px; height: 60px; top: -30px; left: 15px; background: #34495E; }
+        .rain-cloud2::after { width: 50px; height: 50px; top: -25px; right: 20px; background: #34495E; }
+        
+        .rain-cloud3 { 
+            width: 120px; height: 60px; top: 8%; left: 60%; border-radius: 60px;
+        }
+        .rain-cloud3::before { width: 50px; height: 50px; top: -25px; left: 10px; background: #34495E; }
+        .rain-cloud3::after { width: 40px; height: 40px; top: -20px; right: 15px; background: #34495E; }
+        
+        .raindrop {
+            position: absolute;
+            width: 2px;
+            height: 20px;
+            background: linear-gradient(to bottom, transparent, #87CEEB);
+            border-radius: 0 0 2px 2px;
+            animation: rain linear infinite;
+        }
+        
+        @keyframes rain {
+            0% { transform: translateY(-100vh); }
+            100% { transform: translateY(100vh); }
+        }
+        
+        .weather-snowy {
+            background: linear-gradient(135deg, rgba(232, 244, 253, 0.2) 0%, rgba(240, 248, 255, 0.2) 50%, rgba(248, 251, 255, 0.2) 100%);
+        }
+        
+        .snow-cloud1, .snow-cloud2 {
+            background: #B8C6DB;
+            box-shadow: 0 0 20px rgba(184, 198, 219, 0.5);
+        }
+        
+        .snow-cloud1 { width: 100px; height: 50px; top: 10%; left: 15%; }
+        .snow-cloud2 { width: 80px; height: 40px; top: 15%; right: 20%; }
+        
+        .snowflake {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: white;
+            border-radius: 50%;
+            animation: snow linear infinite;
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+        }
+        
+        @keyframes snow {
+            0% { transform: translateY(-100vh) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(360deg); }
+        }
+        
+        .weather-storm {
+            background: linear-gradient(135deg, rgba(44, 62, 80, 0.5) 0%, rgba(52, 73, 94, 0.5) 50%, rgba(27, 38, 49, 0.5) 100%);
+        }
+        
+        .storm-cloud1, .storm-cloud2, .storm-cloud3 {
+            background: #1B2631;
+            box-shadow: 0 0 30px rgba(27, 38, 49, 0.8);
+        }
+        
+        .storm-cloud1 { width: 150px; height: 75px; top: 5%; left: 10%; }
+        .storm-cloud2 { width: 120px; height: 60px; top: 12%; right: 15%; }
+        .storm-cloud3 { width: 100px; height: 50px; top: 8%; left: 60%; }
+        
+        .lightning-bolt {
+            position: absolute;
+            top: 5%;
+            left: 25%;
+            width: 6px;
+            height: 120px;
+            background: linear-gradient(to bottom, #FFFFFF, #FFD700, #FFA500, #FF4500);
+            clip-path: polygon(50% 0%, 20% 30%, 50% 40%, 30% 60%, 50% 70%, 40% 90%, 50% 100%);
+            animation: lightning 3s ease-in-out infinite;
+            opacity: 0;
+            filter: blur(0.5px);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+        }
+        
+        .lightning-bolt:nth-child(2) {
+            left: 75%;
+            animation-delay: 1.5s;
+            height: 100px;
+            clip-path: polygon(50% 0%, 30% 25%, 50% 35%, 20% 55%, 50% 65%, 35% 85%, 50% 100%);
+        }
+        
+        @keyframes lightning {
+            0%, 85%, 100% { opacity: 0; transform: scale(1); }
+            5%, 10% { opacity: 1; transform: scale(1.2); }
+            15%, 20% { opacity: 0.8; transform: scale(1); }
+            25%, 30% { opacity: 1; transform: scale(1.1); }
+        }
+        
+        .weather-clear-night {
+            background: linear-gradient(135deg, rgba(11, 20, 38, 0.6) 0%, rgba(27, 38, 49, 0.6) 50%, rgba(44, 62, 80, 0.6) 100%);
+        }
+        
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle ease-in-out infinite;
+            box-shadow: 0 0 3px rgba(255, 255, 255, 0.8);
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        
+        .moon {
+            position: absolute;
+            top: 10%;
+            right: 15%;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #F4F6F7 0%, #D5DBDB 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(244, 246, 247, 0.5);
+            animation: moonGlow 4s ease-in-out infinite;
+        }
+        
+        @keyframes moonGlow {
+            0%, 100% { box-shadow: 0 0 30px rgba(244, 246, 247, 0.5); }
+            50% { box-shadow: 0 0 50px rgba(244, 246, 247, 0.8); }
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <h3>Weather Animation Demo</h3>
+        <button onclick="showWeather('sunny')">☀️ Sunny</button>
+        <button onclick="showWeather('rainy')">🌧️ Rainy</button>
+        <button onclick="showWeather('snowy')">❄️ Snowy</button>
+        <button onclick="showWeather('storm')">⛈️ Storm</button>
+        <button onclick="showWeather('clear-night')">🌙 Clear Night</button>
+    </div>
+    
+    <div class="weather-section" id="weatherSection">
+        <div class="weather-animation weather-sunny" id="weatherAnimation">
+            <div class="sunny-animation">
+                <div class="sun"></div>
+                <div class="clouds">
+                    <div class="cloud cloud1"></div>
+                    <div class="cloud cloud2"></div>
+                    <div class="cloud cloud3"></div>
+                </div>
+            </div>
+        </div>
+        <div class="weather-info">
+            <h1>Weather Animation Demo</h1>
+            <p>Click the buttons above to see different weather animations!</p>
+        </div>
+    </div>
+
+    <script>
+        function showWeather(type) {
+            const animation = document.getElementById('weatherAnimation');
+            const info = document.querySelector('.weather-info');
+            
+            animation.className = 'weather-animation';
+            
+            animation.classList.add(`weather-${type}`);
+            
+            let title, description;
+            switch(type) {
+                case 'sunny':
+                    title = '☀️ Sunny Day';
+                    description = 'Perfect weather for outdoor activities!';
+                    animation.innerHTML = `
+                        <div class="sunny-animation">
+                            <div class="sun"></div>
+                            <div class="clouds">
+                                <div class="cloud cloud1"></div>
+                                <div class="cloud cloud2"></div>
+                                <div class="cloud cloud3"></div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'rainy':
+                    title = '🌧️ Rainy Day';
+                    description = 'Don\'t forget your umbrella!';
+                    animation.innerHTML = `
+                        <div class="rainy-animation">
+                            <div class="clouds">
+                                <div class="cloud rain-cloud1"></div>
+                                <div class="cloud rain-cloud2"></div>
+                                <div class="cloud rain-cloud3"></div>
+                            </div>
+                            <div class="rain">
+                                ${Array.from({length: 50}, (_, i) => 
+                                    `<div class="raindrop" style="left: ${Math.random() * 100}%; animation-delay: ${Math.random() * 2}s; animation-duration: ${0.5 + Math.random() * 0.5}s;"></div>`
+                                ).join('')}
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'snowy':
+                    title = '❄️ Snowy Day';
+                    description = 'Winter wonderland!';
+                    animation.innerHTML = `
+                        <div class="snowy-animation">
+                            <div class="clouds">
+                                <div class="cloud snow-cloud1"></div>
+                                <div class="cloud snow-cloud2"></div>
+                            </div>
+                            <div class="snow">
+                                ${Array.from({length: 40}, (_, i) => 
+                                    `<div class="snowflake" style="left: ${Math.random() * 100}%; animation-delay: ${Math.random() * 3}s; animation-duration: ${3 + Math.random() * 2}s; opacity: ${0.7 + Math.random() * 0.3};"></div>`
+                                ).join('')}
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'storm':
+                    title = '⛈️ Thunderstorm';
+                    description = 'Stay indoors and stay safe!';
+                    animation.innerHTML = `
+                        <div class="storm-animation">
+                            <div class="clouds">
+                                <div class="cloud storm-cloud1"></div>
+                                <div class="cloud storm-cloud2"></div>
+                                <div class="cloud storm-cloud3"></div>
+                            </div>
+                            <div class="lightning">
+                                <div class="lightning-bolt"></div>
+                                <div class="lightning-bolt"></div>
+                            </div>
+                            <div class="rain">
+                                ${Array.from({length: 60}, (_, i) => 
+                                    `<div class="raindrop heavy" style="left: ${Math.random() * 100}%; animation-delay: ${Math.random() * 2}s; animation-duration: ${0.5 + Math.random() * 0.5}s;"></div>`
+                                ).join('')}
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'clear-night':
+                    title = '🌙 Clear Night';
+                    description = 'Perfect for stargazing!';
+                    animation.innerHTML = `
+                        <div class="clear-night-animation">
+                            <div class="stars">
+                                ${Array.from({length: 100}, (_, i) => 
+                                    `<div class="star" style="left: ${Math.random() * 100}%; top: ${Math.random() * 100}%; animation-delay: ${Math.random() * 3}s; animation-duration: ${1 + Math.random() * 2}s;"></div>`
+                                ).join('')}
+                            </div>
+                            <div class="moon"></div>
+                        </div>
+                    `;
+                    break;
+            }
+            
+            info.innerHTML = `
+                <h1>${title}</h1>
+                <p>${description}</p>
+            `;
+        }
+    </script>
+</body>
+</html> 
